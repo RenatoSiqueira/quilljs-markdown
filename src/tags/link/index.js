@@ -17,32 +17,29 @@ class Link extends AbstractTag {
       name: this.name,
       pattern: this.pattern,
       action: (text, selection, pattern, lineStart) => new Promise((resolve) => {
-        const match = pattern.exec(text)
-        if (!match) {
+        const currentMatch = pattern.exec(text)
+        if (!currentMatch) {
           resolve(false)
           return
         }
-        const startIndex = lineStart + match.index
-        const linkStartIndex = text.search(pattern)
-        const matchedText = text.match(pattern)[0]
-        const hrefText = text.match(/(?:\[(.*?)\])/g)[0]
-        const hrefLink = text.match(/(?:\((.*?)\))/g)[0]
+
+        const matchedText = currentMatch[0]
+        const hrefTextContent = currentMatch[1]
+        const hrefLinkUrl = currentMatch[2]
+
+        const startIndex = lineStart + currentMatch.index
+
         if (!this.activeTags.length) {
           resolve(false)
           return
         }
 
-        if (linkStartIndex !== -1) {
-          setTimeout(() => {
-            const removeOffset = startIndex
-            this.quillJS.deleteText(removeOffset, matchedText.length)
-            this.quillJS.insertText(removeOffset, hrefText.slice(1, hrefText.length - 1),
-              'link', hrefLink.slice(1, hrefLink.length - 1))
-            resolve(true)
-          }, 0)
-        } else {
-          resolve(false)
-        }
+        setTimeout(() => {
+          const removeOffset = startIndex
+          this.quillJS.deleteText(removeOffset, matchedText.length)
+          this.quillJS.insertText(removeOffset, hrefTextContent, 'link', hrefLinkUrl)
+          resolve(true)
+        }, 0)
       })
     }
   }

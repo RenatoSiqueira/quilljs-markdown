@@ -2,7 +2,7 @@ import AbstractTag from '../AbstractTag.js'
 import meta from './meta.js'
 
 class Link extends AbstractTag {
-  constructor (quillJS, options = {}) {
+  constructor(quillJS, options = {}) {
     super()
     this.quillJS = quillJS
     this.name = 'link'
@@ -12,36 +12,37 @@ class Link extends AbstractTag {
     this.activeTags = this._getActiveTagsWithoutIgnore(this._meta.applyHtmlTags, options.ignoreTags)
   }
 
-  getAction () {
+  getAction() {
     return {
       name: this.name,
       pattern: this.pattern,
       action: (text, selection, pattern) => new Promise((resolve) => {
-        const startIndex = text.search(pattern)
-        const matchedText = text.match(pattern)[0]
-        const hrefText = text.match(/(?:\[(.*?)\])/g)[0]
-        const hrefLink = text.match(/(?:\((.*?)\))/g)[0]
-        const start = selection.index - 1 + startIndex
+        const currentMatch = pattern.exec(text);
+        if (!currentMatch) {
+          resolve(false);
+          return;
+        }
+
+        const matchedText = currentMatch[0];
+        const hrefTextContent = currentMatch[1];
+        const hrefLinkUrl = currentMatch[2];
+
+        const matchIndexInText = currentMatch.index;
 
         if (!this.activeTags.length) {
-          resolve(false)
-          return
+          resolve(false);
+          return;
         }
 
-        if (startIndex !== -1) {
-          setTimeout(() => {
-            const inlineModeText = this.quillJS.getText(start - matchedText.length, matchedText.length)
-            const beginOffset = inlineModeText === matchedText ? start - matchedText.length : start
-            this.quillJS.deleteText(beginOffset, matchedText.length)
-            this.quillJS.insertText(beginOffset, hrefText.slice(1, hrefText.length - 1),
-              'link', hrefLink.slice(1, hrefLink.length - 1))
-            resolve(true)
-          }, 0)
-        } else {
-          resolve(false)
-        }
+        const removeOffset = selection.index + matchIndexInText;
+
+        setTimeout(() => {
+          this.quillJS.deleteText(removeOffset, matchedText.length);
+          this.quillJS.insertText(removeOffset, hrefTextContent, 'link', hrefLinkUrl);
+          resolve(true);
+        }, 0);
       })
-    }
+    };
   }
 }
 
