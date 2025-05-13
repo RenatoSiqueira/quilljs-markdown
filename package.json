@@ -12,10 +12,10 @@
     "build:css": "parcel build ./quilljs-markdown-common-style.scss --no-minify",
     "docs-build": "npm-run-all clean docs-build:*",
     "docs-build:module": "webpack --config webpack.config.docs.cjs",
-    "fix:checkstyle": "standard --fix",
+    "fix:checkstyle": "standard --fix --env jest",
     "test": "npm-run-all test:*",
     "test:unit-test": "jest --config jest.config.js",
-    "test:checkstyle": "standard --verbose"
+    "test:checkstyle": "standard --verbose --env jest"
   },
   "repository": {
     "type": "git",
@@ -48,6 +48,7 @@
     "@babel/register": "^7.12.10",
     "babel-loader": "^8.2.2",
     "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.12.4",
     "quill": "^2.0.3",
@@ -55,7 +56,6 @@
     "sass": "^1.32.8",
     "snazzy": "^8.0.0",
     "standard": "^12.0.1",
-    "uglifyjs-webpack-plugin": "^1.1.2",
     "webpack": "^5.99.8",
     "webpack-cli": "^6.0.1"
   },

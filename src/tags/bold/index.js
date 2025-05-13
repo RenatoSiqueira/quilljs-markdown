@@ -6,7 +6,7 @@ class Bold extends AbstractTag {
     super()
     this.quillJS = quillJS
     this.name = 'bold'
-    this.pattern = this._getCustomPatternOrDefault(options, this.name, /(\*|_){2}(.+?)(?:\1){2}/g)
+    this.pattern = this._getCustomPatternOrDefault(options, this.name, /(\*|_){2}(?!\s)((?:[^*_\s]|(?:[^*_\s].*?[^*_\s])))(?<!\s)(?:\1){2}/g)
     this.getAction.bind(this)
     this._meta = meta()
     this.activeTags = this._getActiveTagsWithoutIgnore(this._meta.applyHtmlTags, options.ignoreTags)
@@ -16,14 +16,21 @@ class Bold extends AbstractTag {
     return {
       name: this.name,
       pattern: this.pattern,
-      action: (text, selection, pattern, lineStart) => new Promise((resolve) => {
-        let match = pattern.exec(text)
-        const [annotatedText, , matchedText] = match
-        const startIndex = lineStart + match.index
-        if (text.match(/^([*_ \n]+)$/g) || !this.activeTags.length) {
+      action: (match, selection, lineStart) => new Promise((resolve) => {
+        if (!match || !match[0] || typeof match[2] === 'undefined') {
           resolve(false)
           return
         }
+
+        const annotatedText = match[0]
+        const matchedText = match[2]
+
+        if (matchedText.trim() === '' || !this.activeTags.length) {
+          resolve(false)
+          return
+        }
+
+        const startIndex = lineStart + match.index
 
         setTimeout(() => {
           this.quillJS.deleteText(startIndex, annotatedText.length)

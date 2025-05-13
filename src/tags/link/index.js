@@ -2,7 +2,7 @@ import AbstractTag from '../AbstractTag.js'
 import meta from './meta.js'
 
 class Link extends AbstractTag {
-  constructor (quillJS, options = {}) {
+  constructor(quillJS, options = {}) {
     super()
     this.quillJS = quillJS
     this.name = 'link'
@@ -12,12 +12,16 @@ class Link extends AbstractTag {
     this.activeTags = this._getActiveTagsWithoutIgnore(this._meta.applyHtmlTags, options.ignoreTags)
   }
 
-  getAction () {
+  getAction() {
     return {
       name: this.name,
       pattern: this.pattern,
       action: (text, selection, pattern, lineStart) => new Promise((resolve) => {
         const match = pattern.exec(text)
+        if (!match) {
+          resolve(false)
+          return
+        }
         const startIndex = lineStart + match.index
         const linkStartIndex = text.search(pattern)
         const matchedText = text.match(pattern)[0]

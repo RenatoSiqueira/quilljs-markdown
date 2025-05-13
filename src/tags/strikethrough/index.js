@@ -2,7 +2,7 @@ import AbstractTag from '../AbstractTag.js'
 import meta from './meta.js'
 
 class Bold extends AbstractTag {
-  constructor (quillJS, options = {}) {
+  constructor(quillJS, options = {}) {
     super()
     this.quillJS = quillJS
     this.name = 'strikethrough'
@@ -12,12 +12,17 @@ class Bold extends AbstractTag {
     this.activeTags = this._getActiveTagsWithoutIgnore(this._meta.applyHtmlTags, options.ignoreTags)
   }
 
-  getAction () {
+  getAction() {
     return {
       name: this.name,
       pattern: this.pattern,
       action: (text, selection, pattern, lineStart) => new Promise((resolve) => {
         let match = pattern.exec(text)
+
+        if (!match) {
+          resolve(false)
+          return
+        }
 
         if (!this.activeTags.length) {
           resolve(false)

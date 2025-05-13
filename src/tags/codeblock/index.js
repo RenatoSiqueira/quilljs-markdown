@@ -2,7 +2,7 @@ import AbstractTag from '../AbstractTag.js'
 import meta from './meta.js'
 
 class Codeblock extends AbstractTag {
-  constructor(quillJS, options = {}) {
+  constructor (quillJS, options = {}) {
     super()
     this.quillJS = quillJS
     this.name = 'pre'
@@ -12,48 +12,53 @@ class Codeblock extends AbstractTag {
     this.activeTags = this._getActiveTagsWithoutIgnore(this._meta.applyHtmlTags, options.ignoreTags)
   }
 
-  getAction() {
+  getAction () {
     return {
       name: this.name,
       pattern: this.pattern,
       action: (text, selection, pattern) => new Promise((resolve) => {
-        const matchResult = pattern.exec(text);
+        const matchResult = pattern.exec(text)
         if (!matchResult || !this.activeTags.length) {
-          resolve(false);
-          return;
+          resolve(false)
+          return
         }
 
-        const fullMatchedString = matchResult[0];
-        const content = fullMatchedString.substring(3);
+        const fullMatchedString = matchResult[0]
+        const content = fullMatchedString.substring(3)
 
         setTimeout(() => {
-          const [lineNode, cursorOffsetInLine] = this.quillJS.getLine(selection.index);
-          const lineStartIndex = selection.index - cursorOffsetInLine;
-          const absoluteStartIndex = lineStartIndex + matchResult.index;
+          const [lineNode, cursorOffsetInLine] = this.quillJS.getLine(selection.index)
+          const lineStartIndex = selection.index - cursorOffsetInLine
+          const absoluteStartIndex = lineStartIndex + matchResult.index
 
-          this.quillJS.deleteText(absoluteStartIndex, fullMatchedString.length);
+          this.quillJS.deleteText(absoluteStartIndex, fullMatchedString.length)
 
           setTimeout(() => {
             if (content.trim() === '') {
-              this.quillJS.insertText(absoluteStartIndex, '\n');
-              this.quillJS.formatLine(absoluteStartIndex, 1, 'code-block', true);
-              this.quillJS.setSelection(absoluteStartIndex, 0);
+              this.quillJS.insertText(absoluteStartIndex, '\n')
+              this.quillJS.formatLine(absoluteStartIndex, 1, 'code-block', true)
+              this.quillJS.setSelection(absoluteStartIndex, 0)
             } else {
-              this.quillJS.insertText(absoluteStartIndex, content + '\n');
-              this.quillJS.formatLine(absoluteStartIndex, 1, 'code-block', true);
-              this.quillJS.setSelection(absoluteStartIndex + content.length, 0);
+              this.quillJS.insertText(absoluteStartIndex, content + '\n')
+              this.quillJS.formatLine(absoluteStartIndex, 1, 'code-block', true)
+              this.quillJS.setSelection(absoluteStartIndex + content.length, 0)
             }
-            resolve(true);
-          }, 0);
-        }, 0);
+            resolve(true)
+          }, 0)
+        }, 0)
       }),
       release: () => {
         setTimeout(() => {
           const cursorIndex = this.quillJS.getSelection().index
-          const block = this.quillJS.getLine(cursorIndex)[0]
-          const blockText = block.domNode.textContent
-          if (block && blockText && blockText.replace('\n', '').length <= 0) {
-            this.quillJS.format('code-block', false)
+          const lineData = this.quillJS.getLine(cursorIndex)
+          if (lineData && lineData[0]) {
+            const block = lineData[0]
+            if (block.domNode && typeof block.domNode.textContent === 'string') {
+              const blockText = block.domNode.textContent
+              if (blockText.replace('\n', '').length <= 0) {
+                this.quillJS.format('code-block', false)
+              }
+            }
           }
         }, 0)
       }

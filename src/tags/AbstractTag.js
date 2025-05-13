@@ -5,9 +5,11 @@ class AbstractTag {
 
   _getActiveTagsWithoutIgnore (tags, ignoreTags) {
     if (Array.isArray(ignoreTags)) {
+      const lowerIgnoreTags = ignoreTags.map(t => t.toLowerCase())
       return tags.reduce((allowTags, tag) => {
-        if (!ignoreTags.includes(tag)) {
-          allowTags.push(tag.toLowerCase())
+        const lowerTag = tag.toLowerCase()
+        if (!lowerIgnoreTags.includes(lowerTag)) {
+          allowTags.push(lowerTag)
         }
         return allowTags
       }, [])
